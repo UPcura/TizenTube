@@ -14,6 +14,8 @@
     "@babel/preset-env": "^7.22.9",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-terser": "^0.4.3",
+    "@vot.js/core": "^3.2.0",
+    "@vot.js/shared": "^3.2.0",
     "core-js": "^3.46.0",
     "esprima": "^4.0.1",
     "estraverse": "^5.3.0",
@@ -25,6 +27,7 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.7",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
