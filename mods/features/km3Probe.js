@@ -8,7 +8,7 @@ const TEST_VIDEO = { url: 'https://youtu.be/dQw4w9WgXcQ', videoId: 'dQw4w9WgXcQ'
 const AUDIO_PROXY = 'https://vot-worker.toil.cc/video-translation/audio-proxy/';
 
 function log(...args) {
-    console.info('[KM3PROBE]', ...args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))));
+    console.error('[KM3PROBE]', ...args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))));
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
