@@ -7,8 +7,12 @@ import { VOTNextWorkerProvider } from '@vot.js/core/providers/votworker';
 const TEST_VIDEO = { url: 'https://youtu.be/dQw4w9WgXcQ', videoId: 'dQw4w9WgXcQ', host: 'youtube', duration: 212 };
 const AUDIO_PROXY = 'https://vot-worker.toil.cc/video-translation/audio-proxy/';
 
+const lines = [];
+
 function log(...args) {
-    console.error('[KM3PROBE]', ...args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))));
+    const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
+    lines.push(line);
+    console.error('[KM3PROBE]', line);
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -72,5 +76,10 @@ async function run() {
 }
 
 if (location.hostname === 'www.youtube.com') {
-    setTimeout(() => run().catch(e => log('FAILED', String(e && e.stack || e))), 8000);
+    setTimeout(() => {
+        window.km3Show && window.km3Show('KM3 probe', 'started');
+        run()
+            .catch(e => log('FAILED', String(e && e.stack || e)))
+            .then(() => window.km3Show && window.km3Show('KM3 probe', lines.join('\n')));
+    }, 8000);
 }
