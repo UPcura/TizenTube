@@ -110,16 +110,10 @@ function xhr(name, url, method, body) {
 
 async function netMatrix() {
     log('fetch is', String(window.fetch).slice(0, 90), 'XHR is', String(XMLHttpRequest.prototype.open).slice(0, 60));
-    await xhr('github', 'https://api.github.com/');
-    await xhr('worker GET', `https://${WORKER_HOST}/`);
-    await xhr('worker POST', `https://${WORKER_HOST}/session/create`, 'POST', 'x');
-    await timed('github GET', 'https://api.github.com/');
-    await timed('jsdelivr GET', 'https://cdn.jsdelivr.net/gh/UPcura/TizenTube@main/README.md');
-    await timed('sponsor GET', 'https://sponsor.ajay.app/api/status');
-    await timed('worker GET', `https://${WORKER_HOST}/`);
-    await timed('worker POST text', `https://${WORKER_HOST}/session/create`, { method: 'POST', body: 'x' });
-    await timed('worker POST blob+hdr', `https://${WORKER_HOST}/session/create`,
-        { method: 'POST', body: new Blob([new Uint8Array(8)]), headers: { 'Content-Type': 'application/x-protobuf', 'X-VOT-Headers': btoa('{}') } });
+    await xhr('same-origin', '/tv/manifest.json');
+    await xhr('googleapis', 'https://www.googleapis.com/discovery/v1/apis?name=youtube');
+    await timed('github no-cors', 'https://api.github.com/', { mode: 'no-cors' });
+    await timed('jsdelivr cors', 'https://cdn.jsdelivr.net/gh/UPcura/TizenTube@main/README.md');
 }
 
 async function run() {
