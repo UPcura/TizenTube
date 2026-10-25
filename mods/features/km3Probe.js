@@ -81,8 +81,33 @@ async function play(buf) {
     log('played', { ctxState: ctx.state, advanced: (ctx.currentTime - t0).toFixed(2) });
 }
 
+async function timed(name, url, opts) {
+    const t0 = Date.now();
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 15000);
+    try {
+        const r = await fetch(url, Object.assign({ signal: ctl.signal }, opts || {}));
+        log('net', name, r.status, (Date.now() - t0) + 'ms');
+    } catch (e) {
+        log('net', name, 'ERR ' + e, (Date.now() - t0) + 'ms');
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function netMatrix() {
+    await timed('github GET', 'https://api.github.com/');
+    await timed('jsdelivr GET', 'https://cdn.jsdelivr.net/gh/UPcura/TizenTube@main/README.md');
+    await timed('sponsor GET', 'https://sponsor.ajay.app/api/status');
+    await timed('worker GET', `https://${WORKER_HOST}/`);
+    await timed('worker POST text', `https://${WORKER_HOST}/session/create`, { method: 'POST', body: 'x' });
+    await timed('worker POST blob+hdr', `https://${WORKER_HOST}/session/create`,
+        { method: 'POST', body: new Blob([new Uint8Array(8)]), headers: { 'Content-Type': 'application/x-protobuf', 'X-VOT-Headers': btoa('{}') } });
+}
+
 async function run() {
     log('start');
+    await netMatrix();
     log('env', {
         subtle: !!(window.crypto && crypto.subtle),
         audioContext: typeof (window.AudioContext || window.webkitAudioContext),
