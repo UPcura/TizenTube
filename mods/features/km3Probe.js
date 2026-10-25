@@ -1,11 +1,16 @@
 // KM3 probe: checks, on the real TV, every piece the Yandex voice-over feature depends on.
-// Results go to the console, which Cobalt mirrors to logcat as INFO:CONSOLE lines.
+// Cobalt does not mirror JS console output to logcat, so the summary is shown as a native dialog.
 
 import VOTClient from '@vot.js/core';
 import { VOTNextWorkerProvider } from '@vot.js/core/providers/votworker';
+import { MPEGDecoder } from 'mpg123-decoder';
 
+// vot-worker.toil.cc is gone; this is the host the voice-over-translation extension uses now.
+// Cobalt only lets the page reach it because the KM3 build puts it on its CSP host allow list.
+const WORKER_HOST = 'vot-worker.eu.cc';
+const AUDIO_SOURCE = 'https://vtrans.s3-private.mds.yandex.net/tts/prod/';
+const AUDIO_PROXY = `https://${WORKER_HOST}/video-translation/audio-proxy/`;
 const TEST_VIDEO = { url: 'https://youtu.be/dQw4w9WgXcQ', videoId: 'dQw4w9WgXcQ', host: 'youtube', duration: 212 };
-const AUDIO_PROXY = 'https://vot-worker.toil.cc/video-translation/audio-proxy/';
 
 const lines = [];
 
@@ -20,7 +25,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function translate(client) {
     for (let i = 0; i < 20; i++) {
         const res = await client.translateVideo({ videoData: TEST_VIDEO, requestLang: 'en', responseLang: 'ru' });
-        log('translate', { translated: res.translated, status: res.status, remainingTime: res.remainingTime, url: res.url });
+        log('translate', { translated: res.translated, status: res.status, remainingTime: res.remainingTime });
         if (res.translated) return res.url;
         await sleep(Math.min(Math.max(res.remainingTime || 10, 5), 30) * 1000);
     }
@@ -28,27 +33,39 @@ async function translate(client) {
 }
 
 async function fetchAudio(url) {
-    const candidates = [url];
-    const m = url.match(/^https:\/\/vtrans\.s3-private\.mds\.yandex\.net\/tts\/prod\/(.+)$/);
-    if (m) candidates.push(AUDIO_PROXY + m[1]);
-    for (const u of candidates) {
-        try {
-            const r = await fetch(u);
-            const buf = await r.arrayBuffer();
-            log('audio fetch', { url: u, status: r.status, bytes: buf.byteLength, type: r.headers.get('content-type') });
-            if (r.ok && buf.byteLength > 1000) return buf;
-        } catch (e) {
-            log('audio fetch ERR', { url: u, error: String(e) });
-        }
+    // the S3 host is too long for Cobalt's allow list, so audio goes through the worker's proxy
+    const proxied = url.replace(AUDIO_SOURCE, AUDIO_PROXY);
+    const t0 = Date.now();
+    const r = await fetch(proxied);
+    const buf = await r.arrayBuffer();
+    log('audio fetch', { status: r.status, bytes: buf.byteLength, ms: Date.now() - t0 });
+    if (!r.ok) throw new Error('audio proxy returned ' + r.status);
+    return buf;
+}
+
+async function decode(ctx, buf) {
+    try {
+        const d = await ctx.decodeAudioData(buf.slice(0));
+        log('decodeAudioData OK', { duration: d.duration.toFixed(1) });
+        return d;
+    } catch (e) {
+        log('decodeAudioData ERR', String(e));
     }
-    throw new Error('no audio source worked');
+    const t0 = Date.now();
+    const dec = new MPEGDecoder();
+    await dec.ready;
+    const { channelData, samplesDecoded, sampleRate } = dec.decode(new Uint8Array(buf));
+    dec.free();
+    log('mpg123 OK', { seconds: (samplesDecoded / sampleRate).toFixed(1), rate: sampleRate, ms: Date.now() - t0 });
+    const out = ctx.createBuffer(channelData.length, samplesDecoded, sampleRate);
+    channelData.forEach((ch, i) => out.copyToChannel(ch, i));
+    return out;
 }
 
 async function play(buf) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     const ctx = new Ctx();
-    const decoded = await ctx.decodeAudioData(buf);
-    log('decoded', { duration: decoded.duration, channels: decoded.numberOfChannels, rate: decoded.sampleRate });
+    const decoded = await decode(ctx, buf);
     const src = ctx.createBufferSource();
     const gain = ctx.createGain();
     gain.gain.value = 0.6;
@@ -65,10 +82,9 @@ async function run() {
     log('env', {
         subtle: !!(window.crypto && crypto.subtle),
         audioContext: typeof (window.AudioContext || window.webkitAudioContext),
-        mp3: document.createElement('audio').canPlayType('audio/mpeg'),
-        href: location.href,
+        wasm: typeof WebAssembly,
     });
-    const client = new VOTClient({ provider: VOTNextWorkerProvider });
+    const client = new VOTClient({ provider: VOTNextWorkerProvider, host: WORKER_HOST });
     const url = await translate(client);
     const buf = await fetchAudio(url);
     await play(buf);
@@ -77,9 +93,8 @@ async function run() {
 
 if (location.hostname === 'www.youtube.com') {
     setTimeout(() => {
-        window.km3Show && window.km3Show('KM3 probe', 'started');
         run()
-            .catch(e => log('FAILED', String(e && e.stack || e)))
+            .catch(e => log('FAILED', String(e && e.stack || e).slice(0, 400)))
             .then(() => window.km3Show && window.km3Show('KM3 probe', lines.join('\n')));
     }, 8000);
 }
