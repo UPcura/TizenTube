@@ -7,7 +7,16 @@ function show(title, text) {
     } catch (e) { /* not on Cobalt */ }
 }
 
-window.addEventListener('error', e => show('KM3 error', (e.error && e.error.stack) || e.message));
-window.addEventListener('unhandledrejection', e => show('KM3 rejection', (e.reason && e.reason.stack) || e.reason));
+// YouTube's own code throws plenty of its own errors; only report ones from our bundle
+const ours = text => /cdn\.jsdelivr\.net\/gh\//.test(String(text));
+
+window.addEventListener('error', e => {
+    const text = (e.error && e.error.stack) || e.message;
+    if (ours(text) || ours(e.filename)) show('KM3 error', text);
+});
+window.addEventListener('unhandledrejection', e => {
+    const text = (e.reason && e.reason.stack) || e.reason;
+    if (ours(text)) show('KM3 rejection', text);
+});
 
 window.km3Show = show;
