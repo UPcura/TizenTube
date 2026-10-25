@@ -5,6 +5,7 @@ import VOTClient from '@vot.js/core';
 import { VOTNextWorkerProvider } from '@vot.js/core/providers/votworker';
 import { MPEGDecoder } from 'mpg123-decoder';
 
+// vot.js aborts requests after 3 s by default, too short for the first TLS handshake on a TV box.
 // vot-worker.toil.cc is gone; this is the host the voice-over-translation extension uses now.
 // Cobalt only lets the page reach it because the KM3 build puts it on its CSP host allow list.
 const WORKER_HOST = 'vot-worker.eu.cc';
@@ -87,7 +88,7 @@ async function run() {
         audioContext: typeof (window.AudioContext || window.webkitAudioContext),
         wasm: typeof WebAssembly,
     });
-    const client = new VOTClient({ provider: VOTNextWorkerProvider, host: WORKER_HOST });
+    const client = new VOTClient({ provider: VOTNextWorkerProvider, host: WORKER_HOST, fetchOpts: { timeout: 20000 } });
     const url = await translate(client);
     const buf = await fetchAudio(url);
     await play(buf);
@@ -97,7 +98,7 @@ async function run() {
 if (location.hostname === 'www.youtube.com') {
     setTimeout(() => {
         run()
-            .catch(e => log('FAILED', String(e && e.stack || e).slice(0, 400)))
+            .catch(e => log('FAILED', String(e && e.message || e), JSON.stringify(e && e.data || null).slice(0, 300)))
             .then(() => window.km3Show && window.km3Show('KM3 probe', lines.join('\n')));
     }, 8000);
 }
