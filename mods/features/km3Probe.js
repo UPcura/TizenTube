@@ -18,6 +18,8 @@ function log(...args) {
     const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
     lines.push(line);
     console.error('[KM3PROBE]', line);
+    // dev only: a busybox nc server on the box collects these (YouTube's CSP allows 127.0.0.1)
+    fetch('http://127.0.0.1:8013/log', { method: 'POST', body: line }).catch(() => {});
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -79,6 +81,7 @@ async function play(buf) {
 }
 
 async function run() {
+    log('start');
     log('env', {
         subtle: !!(window.crypto && crypto.subtle),
         audioContext: typeof (window.AudioContext || window.webkitAudioContext),
