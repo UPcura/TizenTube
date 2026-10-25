@@ -10,7 +10,7 @@ import { configRead } from '../../config.js';
 import { showToast } from '../../ui/ytUI.js';
 import { t } from 'i18next';
 import { Mp3Track } from './mp3.js';
-import { bridgeAvailable, bridgeDiagnosis, bridgeFetch } from './yandexBridge.js';
+import { bridgeAvailable, bridgeFetch } from './yandexBridge.js';
 import './strings.js';
 
 export const WORKER_HOST = 'vot-worker.eu.cc';
@@ -237,7 +237,6 @@ export async function startVoiceOver() {
         syncId: 0, scheduling: false, savedVolume: null, timer: null, refresh: null,
     };
     toast(t('km3.voiceOver.requesting'));
-    if (!bridgeAvailable()) showToast('KM3 debug', bridgeDiagnosis()); // KM3 debug: remove once the bridge path is confirmed
     try {
         const res = await requestTranslation(videoId, gen);
         if (!res) return;
