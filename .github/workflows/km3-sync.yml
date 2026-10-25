@@ -1,0 +1,62 @@
+# KM3: keep the km3 branch on top of upstream TizenTube.
+# KM3 Cobalt builds load k.js from this branch through jsDelivr, so upstream fixes (ad blocking,
+# SponsorBlock, ...) only reach them after a merge and a rebuild. If the merge does not apply
+# cleanly nothing is pushed and the run fails, which GitHub reports by mail.
+name: KM3 sync with upstream
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: km3
+          fetch-depth: 0
+
+      - name: Merge upstream main
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/reisxd/TizenTube.git
+          git fetch upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date with upstream."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git merge --no-edit upstream/main; then
+            git merge --abort
+            echo "::error::upstream/main does not merge cleanly into km3 - merge it by hand"
+            exit 1
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.merge.outputs.changed == 'true'
+        with:
+          node-version: 22
+
+      - name: Build k.js
+        if: steps.merge.outputs.changed == 'true'
+        working-directory: mods
+        run: |
+          npm install --no-audit --no-fund --legacy-peer-deps
+          npm run build
+          node --check ../k.js
+
+      - name: Push and refresh jsDelivr
+        if: steps.merge.outputs.changed == 'true'
+        run: |
+          git add k.js mods/package-lock.json
+          git commit -m "KM3: rebuild k.js after upstream sync" || echo "k.js unchanged"
+          git push origin km3
+          curl -fsS "https://purge.jsdelivr.net/gh/UPcura/TizenTube@km3/k.js"
