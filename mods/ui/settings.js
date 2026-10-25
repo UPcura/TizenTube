@@ -766,14 +766,67 @@ export default function modernUI(update, parameters) {
                 }
             ]
         },
+        {
+            name: t('km3.voiceOver.settings.title'),
+            icon: 'TRANSLATE',
+            value: null,
+            menuHeader: {
+                title: t('km3.voiceOver.settings.title'),
+                subtitle: t('km3.voiceOver.settings.subtitle')
+            },
+            options: [
+                {
+                    name: t('km3.voiceOver.settings.button'),
+                    icon: 'TRANSLATE',
+                    value: 'enableVoiceOverButton'
+                },
+                {
+                    name: t('km3.voiceOver.settings.auto'),
+                    icon: 'PLAY_ARROW',
+                    value: 'voiceOverAuto'
+                },
+                {
+                    name: t('km3.voiceOver.settings.originalVolume'),
+                    icon: 'VOLUME_DOWN',
+                    value: null,
+                    menuId: 'km3-voiceover-original-volume',
+                    menuHeader: {
+                        title: t('km3.voiceOver.settings.originalVolume'),
+                        subtitle: t('km3.voiceOver.settings.originalVolumeSubtitle')
+                    },
+                    options: [0, 10, 20, 30, 50, 70].map(percent => ({
+                        name: `${percent}%`,
+                        key: 'voiceOverOriginalVolume',
+                        value: percent
+                    }))
+                },
+                {
+                    name: t('km3.voiceOver.settings.volume'),
+                    icon: 'VOLUME_UP',
+                    value: null,
+                    menuId: 'km3-voiceover-volume',
+                    menuHeader: {
+                        title: t('km3.voiceOver.settings.volume'),
+                        subtitle: t('km3.voiceOver.settings.volumeSubtitle')
+                    },
+                    options: [50, 70, 85, 100].map(percent => ({
+                        name: `${percent}%`,
+                        key: 'voiceOverVolume',
+                        value: percent
+                    }))
+                }
+            ]
+        },
         window.h5vcc && window.h5vcc.tizentube ?
             {
+                // KM3: this build is updated by the Cobalt Updater app, which re-applies the icon,
+                // name and signing; an APK from TizenTube's own updater would not install over it
                 name: t('settings.options.updater.title'),
                 icon: 'SYSTEM_UPDATE',
                 value: null,
                 menuHeader: {
                     title: t('settings.options.updater.title'),
-                    subtitle: t('settings.options.updater.menuSubtitle')
+                    subtitle: t('km3.updater.menuSubtitle')
                 },
                 subtitle:  t('settings.options.updater.versionSubtitle', { version: window.h5vcc.tizentube.GetVersion() }),
                 options: [
@@ -787,12 +840,7 @@ export default function modernUI(update, parameters) {
                                 }
                             }
                         ]
-                    ),
-                    {
-                        name: t('settings.options.updater.options.checkForUpdatesOnStartup'),
-                        icon: 'SYSTEM_UPDATE',
-                        value: 'enableUpdater'
-                    }
+                    )
                 ]
             } : null
     ];

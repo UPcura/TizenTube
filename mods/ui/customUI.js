@@ -123,6 +123,30 @@ function applyPatches() {
             }
         }
 
+        if (engagementActionButton && configRead('enableVoiceOverButton')) {
+            const origEngagementActionButton = inst[engagementActionButton];
+            inst[engagementActionButton] = function () {
+                const res = origEngagementActionButton.apply(this, arguments);
+                res.find(item => item.type === 'TRANSPORT_CONTROLS_BUTTON_TYPE_KM3_VOICEOVER') || res.push({
+                    type: 'TRANSPORT_CONTROLS_BUTTON_TYPE_KM3_VOICEOVER',
+                    button: {
+                        buttonRenderer: ButtonRenderer(
+                            false,
+                            t('km3.voiceOver.button'),
+                            'TRANSLATE',
+                            {
+                                customAction:
+                                {
+                                    action: 'KM3_VOICEOVER_TOGGLE',
+                                }
+                            }
+                        )
+                    }
+                });
+                return res;
+            }
+        }
+
         if (!configRead('enableSuperThanksButton')) {
             const origEngagementActionButton = inst[engagementActionButton];
             inst[engagementActionButton] = function () {

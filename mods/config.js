@@ -71,6 +71,11 @@ const defaultConfig = {
   disableEnlargingThumbnails: false,
   enableShrinkingThumbnails: false,
   hideRelatedVideosPlayer: false,
+  // KM3: Yandex voice-over translation
+  enableVoiceOverButton: true,
+  voiceOverAuto: false,
+  voiceOverOriginalVolume: 20,
+  voiceOverVolume: 100,
 };
 
 let localConfig;

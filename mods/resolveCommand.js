@@ -8,6 +8,7 @@ import { t } from 'i18next';
 import { requestNextAndNavigateChannel, getFeedbackPanelTokens, sendFeedbackToken } from './utils/innerTubeCalls.js';
 import qrcode from 'qrcode-npm';
 import showGuideSettings from './ui/sidebarModification.js';
+import { toggleVoiceOver } from './features/km3/voiceOver.js';
 
 export default function resolveCommand(cmd, _) {
     // resolveCommand function is pretty OP, it can do from opening modals, changing client settings and way more.
@@ -217,6 +218,9 @@ function customAction(action, parameters) {
             break;
         case 'TT_SPEED_SETTINGS_SHOW':
             speedSettings();
+            break;
+        case 'KM3_VOICEOVER_TOGGLE':
+            toggleVoiceOver();
             break;
         case 'UPDATE_REMIND_LATER':
             configWrite('dontCheckUpdateUntil', parameters);

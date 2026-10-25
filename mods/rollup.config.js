@@ -8,7 +8,11 @@ import json from '@rollup/plugin-json';
 
 export default {
     input: "userScript.js",
-    output: { file: "../dist/userScript.js", format: "iife" },
+    output: [
+        { file: "../dist/userScript.js", format: "iife" },
+        // KM3: the copy the KM3 Cobalt build loads from jsDelivr (dist/ is not committed)
+        { file: "../k.js", format: "iife" },
+    ],
     plugins: [
         json(),
         string({
