@@ -95,7 +95,24 @@ async function timed(name, url, opts) {
     }
 }
 
+function xhr(name, url, method, body) {
+    return new Promise(resolve => {
+        const t0 = Date.now();
+        const x = new XMLHttpRequest();
+        x.open(method || 'GET', url);
+        x.timeout = 15000;
+        x.onload = () => { log('xhr', name, x.status, (Date.now() - t0) + 'ms'); resolve(); };
+        x.onerror = () => { log('xhr', name, 'error', (Date.now() - t0) + 'ms'); resolve(); };
+        x.ontimeout = () => { log('xhr', name, 'timeout', (Date.now() - t0) + 'ms'); resolve(); };
+        x.send(body || null);
+    });
+}
+
 async function netMatrix() {
+    log('fetch is', String(window.fetch).slice(0, 90), 'XHR is', String(XMLHttpRequest.prototype.open).slice(0, 60));
+    await xhr('github', 'https://api.github.com/');
+    await xhr('worker GET', `https://${WORKER_HOST}/`);
+    await xhr('worker POST', `https://${WORKER_HOST}/session/create`, 'POST', 'x');
     await timed('github GET', 'https://api.github.com/');
     await timed('jsdelivr GET', 'https://cdn.jsdelivr.net/gh/UPcura/TizenTube@main/README.md');
     await timed('sponsor GET', 'https://sponsor.ajay.app/api/status');
