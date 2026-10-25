@@ -18,7 +18,7 @@ const strings = {
             "networkError": "Cannot reach the translation server",
             "settings": {
                 "title": "Video translation (Yandex)",
-                "subtitle": "Russian voice-over via vot-worker",
+                "subtitle": "Russian voice-over by Yandex",
                 "button": "\"Translate\" button in the player",
                 "auto": "Translate every video automatically",
                 "originalVolume": "Original volume",
@@ -28,10 +28,23 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "Updates are installed by the Cobalt Updater app",
+            "menuSubtitle": "Updates are rebuilt into the KM3 version right on this device",
+            "updateNowSubtitle": "Download the release, rebuild it into the KM3 version and install it",
+            "busy": "An update is already running",
+            "reinstall": {
+                "title": "Rebuild this version",
+                "subtitle": "Download this release again and reinstall the KM3 build"
+            },
+            "stage": {
+                "download": "Downloading the update… {{percent}}%",
+                "patch": "Building the KM3 version…",
+                "sign": "Signing…",
+                "install": "Confirm the installation on screen",
+                "error": "Update failed: {{error}}"
+            },
             "ok": {
                 "title": "Got it",
-                "subtitle": "Open Cobalt Updater on the home screen to update"
+                "subtitle": "This build cannot update itself yet: install a KM3 build with the built-in updater"
             }
         }
     },
@@ -49,7 +62,7 @@ const strings = {
             "networkError": "Нет связи с сервером перевода",
             "settings": {
                 "title": "Перевод видео (Яндекс)",
-                "subtitle": "Закадровый перевод на русский через vot-worker",
+                "subtitle": "Закадровый перевод на русский от Яндекса",
                 "button": "Кнопка «Перевод» в плеере",
                 "auto": "Переводить каждое видео автоматически",
                 "originalVolume": "Громкость оригинала",
@@ -59,10 +72,23 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "Обновления ставит приложение Cobalt Updater",
+            "menuSubtitle": "Обновление собирается в KM3-версию прямо на приставке",
+            "updateNowSubtitle": "Скачать релиз, собрать из него KM3-версию и установить",
+            "busy": "Обновление уже идёт",
+            "reinstall": {
+                "title": "Пересобрать текущую версию",
+                "subtitle": "Скачать этот релиз заново и переустановить KM3-сборку"
+            },
+            "stage": {
+                "download": "Скачиваю обновление… {{percent}}%",
+                "patch": "Собираю KM3-версию…",
+                "sign": "Подписываю…",
+                "install": "Подтвердите установку на экране",
+                "error": "Не удалось обновить: {{error}}"
+            },
             "ok": {
                 "title": "Понятно",
-                "subtitle": "Откройте Cobalt Updater на главном экране, чтобы обновиться"
+                "subtitle": "Эта сборка пока не умеет обновляться сама: поставьте KM3-сборку со встроенным обновлением"
             }
         }
     },

@@ -3,6 +3,7 @@ import { showModal, buttonItem, overlayPanelItemListRenderer, scrollPaneRenderer
 import qrcode from 'qrcode-npm';
 import { t } from 'i18next';
 import resolveCommand from '../resolveCommand.js';
+import { km3Updater } from '../features/updater.js';
 
 const qrcodes = {};
 
@@ -819,8 +820,7 @@ export default function modernUI(update, parameters) {
         },
         window.h5vcc && window.h5vcc.tizentube ?
             {
-                // KM3: this build is updated by the Cobalt Updater app, which re-applies the icon,
-                // name and signing; an APK from TizenTube's own updater would not install over it
+                // KM3: the app rebuilds releases into the KM3 build itself (features/updater.js)
                 name: t('settings.options.updater.title'),
                 icon: 'SYSTEM_UPDATE',
                 value: null,
@@ -840,8 +840,19 @@ export default function modernUI(update, parameters) {
                                 }
                             }
                         ]
-                    )
-                ]
+                    ),
+                    km3Updater() ? buttonItem(
+                        { title: t('km3.updater.reinstall.title'), subtitle: t('km3.updater.reinstall.subtitle') },
+                        { icon: 'SYSTEM_UPDATE' },
+                        [
+                            {
+                                customAction: {
+                                    action: 'KM3_UPDATE_REINSTALL',
+                                }
+                            }
+                        ]
+                    ) : null
+                ].filter(Boolean)
             } : null
     ];
 

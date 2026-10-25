@@ -3,7 +3,7 @@ import { enablePip } from './features/pictureInPicture.js';
 import modernUI, { optionShow } from './ui/settings.js';
 import { speedSettings } from './ui/speedUI.js';
 import { showToast, buttonItem, showModal, QrCodeRenderer, overlayPanelItemListRenderer, overlayMessageRenderer } from './ui/ytUI.js';
-import checkForUpdates from './features/updater.js';
+import checkForUpdates, { startUpdate, reinstallCurrent } from './features/updater.js';
 import { t } from 'i18next';
 import { requestNextAndNavigateChannel, getFeedbackPanelTokens, sendFeedbackToken } from './utils/innerTubeCalls.js';
 import qrcode from 'qrcode-npm';
@@ -252,6 +252,12 @@ function customAction(action, parameters) {
             break;
         case 'CHECK_FOR_UPDATES':
             checkForUpdates(true);
+            break;
+        case 'KM3_UPDATE_START':
+            startUpdate(parameters);
+            break;
+        case 'KM3_UPDATE_REINSTALL':
+            reinstallCurrent();
             break;
         case 'GO_TO_CHANNEL':
             requestNextAndNavigateChannel(parameters);
