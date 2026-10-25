@@ -1,5 +1,5 @@
 # KM3: keep the km3 branch on top of upstream TizenTube.
-# KM3 Cobalt builds load k.js from this branch through jsDelivr, so upstream fixes (ad blocking,
+# KM3 Cobalt builds load k.js, and through it t.js, from this branch via jsDelivr, so upstream fixes (ad blocking,
 # SponsorBlock, ...) only reach them after a merge and a rebuild. If the merge does not apply
 # cleanly nothing is pushed and the run fails, which GitHub reports by mail.
 name: KM3 sync with upstream
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       rebuild:
-        description: 'Rebuild and publish k.js even if upstream has nothing new'
+        description: 'Rebuild and publish t.js even if upstream has nothing new'
         type: boolean
         default: false
 
@@ -50,18 +50,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build k.js
+      - name: Build t.js
         if: steps.merge.outputs.changed == 'true'
         working-directory: mods
         run: |
           npm install --no-audit --no-fund --legacy-peer-deps
           npm run build
-          node --check ../k.js
+          node --check ../t.js
 
       - name: Push and refresh jsDelivr
         if: steps.merge.outputs.changed == 'true'
         run: |
-          git add k.js mods/package-lock.json
-          git commit -m "KM3: rebuild k.js after upstream sync" || echo "k.js unchanged"
+          git add t.js mods/package-lock.json
+          git commit -m "KM3: rebuild t.js after upstream sync" || echo "t.js unchanged"
           git push origin km3
-          curl -fsS "https://purge.jsdelivr.net/gh/UPcura/TizenTube@km3/k.js"
+          # k.js loads t.js pinned to the new commit; refreshing the branch copy only helps the fallback
+          curl -fsS "https://purge.jsdelivr.net/gh/UPcura/TizenTube@km3/t.js" || true
