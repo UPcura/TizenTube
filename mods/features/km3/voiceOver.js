@@ -9,6 +9,7 @@ import { configRead } from '../../config.js';
 import { showToast } from '../../ui/ytUI.js';
 import { t } from 'i18next';
 import { Mp3Track } from './mp3.js';
+import './strings.js';
 
 export const WORKER_HOST = 'vot-worker.eu.cc';
 const AUDIO_SOURCE = 'https://vtrans.s3-private.mds.yandex.net/tts/prod/';
