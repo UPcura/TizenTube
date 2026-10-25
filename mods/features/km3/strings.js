@@ -28,12 +28,16 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "The new version is built right on this device, with the voice-over and your choices below",
+            "menuSubtitle": "New versions are looked for at startup and built right on this device",
             "updateNowSubtitle": "Download the release, build it with your settings and install it",
             "busy": "An update is already running",
+            "rebuild": {
+                "title": "Rebuild",
+                "subtitle": "Build this version again with the icon, name and package chosen here"
+            },
             "reinstall": {
-                "title": "Rebuild this version",
-                "subtitle": "Download this release again and reinstall it, e.g. to apply the choices below"
+                "title": "Rebuild now",
+                "subtitle": "Download this release again and reinstall it with the choices above"
             },
             "original": "TizenTube's own",
             "icon": {
@@ -91,12 +95,16 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "Новая версия собирается прямо на приставке, с переводом и вашими настройками ниже",
+            "menuSubtitle": "Новые версии проверяются при запуске и собираются прямо на приставке",
             "updateNowSubtitle": "Скачать релиз, собрать его с вашими настройками и установить",
             "busy": "Обновление уже идёт",
+            "rebuild": {
+                "title": "Пересборка",
+                "subtitle": "Собрать эту версию заново с выбранными здесь иконкой, названием и пакетом"
+            },
             "reinstall": {
-                "title": "Пересобрать текущую версию",
-                "subtitle": "Скачать этот релиз заново и переустановить, например чтобы применить настройки ниже"
+                "title": "Пересобрать сейчас",
+                "subtitle": "Скачать этот релиз заново и переустановить с настройками выше"
             },
             "original": "Как у TizenTube",
             "icon": {

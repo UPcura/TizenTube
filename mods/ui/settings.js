@@ -829,7 +829,8 @@ export default function modernUI(update, parameters) {
                     subtitle: t('km3.updater.menuSubtitle')
                 },
                 subtitle:  t('settings.options.updater.versionSubtitle', { version: window.h5vcc.tizentube.GetVersion() }),
-                options: [
+                // updates are checked for at startup; without the in-app updater only a manual check is left
+                options: km3Updater() ? [rebuildMenu()] : [
                     buttonItem(
                         { title: t('settings.options.updater.options.checkForUpdates') },
                         { icon: 'SYSTEM_UPDATE' },
@@ -840,20 +841,8 @@ export default function modernUI(update, parameters) {
                                 }
                             }
                         ]
-                    ),
-                    km3Updater() ? buttonItem(
-                        { title: t('km3.updater.reinstall.title'), subtitle: t('km3.updater.reinstall.subtitle') },
-                        { icon: 'SYSTEM_UPDATE' },
-                        [
-                            {
-                                customAction: {
-                                    action: 'KM3_UPDATE_REINSTALL',
-                                }
-                            }
-                        ]
-                    ) : null,
-                    ...updaterChoices()
-                ].filter(Boolean)
+                    )
+                ]
             } : null
     ];
 
@@ -924,28 +913,52 @@ export default function modernUI(update, parameters) {
     );
 }
 
-// KM3: name, package and launcher art the updater builds the next version with
-function updaterChoices() {
+// KM3: the name, package and launcher art the updater builds the next version with, and a rebuild
+// of the installed version to apply them. Choices get icons of their own: without one the options
+// menu shows a down arrow.
+function rebuildMenu() {
     const installed = installedSettings();
-    if (!installed) return [];
-    const choice = (key, id, values, label) => ({
+    const choice = (key, id, icon, values, label) => ({
         name: t(`km3.updater.${id}.title`),
-        icon: 'SETTINGS',
+        icon,
         value: null,
         menuId: `tt-updater-${id}`,
         menuHeader: {
             title: t(`km3.updater.${id}.title`),
             subtitle: t(`km3.updater.${id}.subtitle`)
         },
-        options: values.map(value => ({ name: label(value), key, value }))
+        options: values.map(value => ({ name: label(value), icon: value ? 'VIDEO_YOUTUBE' : 'TV', key, value }))
     });
-    return [
-        choice('updaterIconSet', 'icon', [...installed.sets, ''],
-            set => set ? t(`km3.updater.icon.sets.${set}`, { defaultValue: set.replace(/_/g, ' ') }) : t('km3.updater.original')),
-        choice('updaterAppName', 'name', ['YouTube', ''], name => name || t('km3.updater.original')),
-        choice('updaterPackage', 'package', ['com.google.android.youtube.tv', ''],
-            pkg => pkg ? t('km3.updater.package.youtube') : t('km3.updater.original'))
-    ];
+    return {
+        name: t('km3.updater.rebuild.title'),
+        icon: 'SYSTEM_UPDATE',
+        value: null,
+        menuId: 'tt-updater-rebuild',
+        menuHeader: {
+            title: t('km3.updater.rebuild.title'),
+            subtitle: t('km3.updater.rebuild.subtitle')
+        },
+        options: [
+            ...(installed ? [
+                choice('updaterIconSet', 'icon', 'TV', [...installed.sets, ''],
+                    set => set ? t(`km3.updater.icon.sets.${set}`, { defaultValue: set.replace(/_/g, ' ') }) : t('km3.updater.original')),
+                choice('updaterAppName', 'name', 'MENU', ['YouTube', ''], name => name || t('km3.updater.original')),
+                choice('updaterPackage', 'package', 'SETTINGS', ['com.google.android.youtube.tv', ''],
+                    pkg => pkg ? t('km3.updater.package.youtube') : t('km3.updater.original'))
+            ] : []),
+            buttonItem(
+                { title: t('km3.updater.reinstall.title'), subtitle: t('km3.updater.reinstall.subtitle') },
+                { icon: 'SYSTEM_UPDATE' },
+                [
+                    {
+                        customAction: {
+                            action: 'KM3_UPDATE_REINSTALL',
+                        }
+                    }
+                ]
+            )
+        ]
+    };
 }
 
 export function optionShow(parameters, update) {
