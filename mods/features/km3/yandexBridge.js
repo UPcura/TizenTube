@@ -17,6 +17,23 @@ export function bridgeAvailable() {
     }
 }
 
+// KM3 debug: why the bridge is not used (YouTube silences the console, so this goes to a toast)
+export function bridgeDiagnosis() {
+    const b = bridge();
+    const parts = ['KM3Yandex: ' + typeof b, 'HTMLMediaElementExtension: ' + typeof window.HTMLMediaElementExtension];
+    if (b) {
+        try {
+            parts.push('version: ' + typeof b.version + ' = ' + b.version());
+        } catch (e) {
+            parts.push('version threw ' + (e && e.message));
+        }
+        try {
+            parts.push('keys: ' + Object.getOwnPropertyNames(Object.getPrototypeOf(b) || {}).concat(Object.keys(b)).join(','));
+        } catch (_) { /* opaque object */ }
+    }
+    return parts.join('; ');
+}
+
 function toBase64(bytes) {
     let binary = '';
     for (let i = 0; i < bytes.length; i += 0x8000) {
