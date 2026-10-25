@@ -1,6 +1,7 @@
 // KM3: Yandex voice-over translation, played in sync with the video.
-// The page cannot send the headers Yandex wants, so requests go through the vot-worker proxy;
-// the KM3 Cobalt build puts that host on Cobalt's CSP allow list, nothing else may reach it.
+// The page cannot send the headers Yandex wants. KM3 Cobalt builds carry a Java bridge,
+// window.KM3Yandex, that talks to Yandex directly; older builds go through the vot-worker proxy,
+// which the KM3 Cobalt build puts on Cobalt's CSP allow list, nothing else may reach it.
 
 import VOTClient from '@vot.js/core';
 import { VOTNextWorkerProvider } from '@vot.js/core/providers/votworker';
@@ -9,6 +10,7 @@ import { configRead } from '../../config.js';
 import { showToast } from '../../ui/ytUI.js';
 import { t } from 'i18next';
 import { Mp3Track } from './mp3.js';
+import { bridgeAvailable, bridgeFetch } from './yandexBridge.js';
 import './strings.js';
 
 export const WORKER_HOST = 'vot-worker.eu.cc';
@@ -22,7 +24,17 @@ const LOOKAHEAD = 30;    // seconds kept scheduled ahead of the playhead
 const MAX_DRIFT = 0.35;  // seconds the voice-over may drift from the video before it is re-synced
 
 // vot.js aborts after 3 s by default, too short for a TLS handshake on a TV box
-const client = new VOTClient({ provider: VOTNextWorkerProvider, host: WORKER_HOST, fetchOpts: { timeout: 20000 } });
+const fetchOpts = { timeout: 20000 };
+let client = null;
+function votClient() {
+    if (!client) {
+        client = bridgeAvailable()
+            ? new VOTClient({ fetchFn: bridgeFetch, fetchOpts })
+            : new VOTClient({ provider: VOTNextWorkerProvider, host: WORKER_HOST, fetchOpts });
+        console.info('KM3 voice-over: Yandex via ' + (bridgeAvailable() ? 'KM3Yandex' : WORKER_HOST));
+    }
+    return client;
+}
 
 // videoId -> { lang, duration }, read from player responses as they pass through JSON.parse.
 // The language of YouTube's auto captions ("asr") is the language spoken in the video.
@@ -79,7 +91,7 @@ async function requestTranslation(videoId, gen) {
     const videoData = { url: `https://youtu.be/${videoId}`, videoId, host: 'youtube', duration: info.duration || undefined };
     let lastToast = 0;
     for (;;) {
-        const res = await client.translateVideo({ videoData, requestLang: lang, responseLang: 'ru' });
+        const res = await votClient().translateVideo({ videoData, requestLang: lang, responseLang: 'ru' });
         if (gen !== generation) return null;
         if (res.translated) return res;
         if (res.status === STATUS_FAILED) throw new Error('failed');
@@ -98,7 +110,9 @@ async function loadTrack(url, gen) {
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
         try {
-            const res = await fetch(url.replace(AUDIO_SOURCE, AUDIO_PROXY));
+            const res = bridgeAvailable()
+                ? await bridgeFetch(url, { timeout: 60000 })
+                : await fetch(url.replace(AUDIO_SOURCE, AUDIO_PROXY));
             if (!res.ok) throw new Error(`audio proxy answered ${res.status}`);
             const bytes = new Uint8Array(await res.arrayBuffer());
             if (gen !== generation) return null;
