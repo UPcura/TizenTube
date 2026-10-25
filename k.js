@@ -6,11 +6,21 @@
     var base = 'https://cdn.jsdelivr.net/gh/UPcura/TizenTube@';
     var loaded = false;
 
+    // YouTube enforces Trusted Types ("require-trusted-types-for 'script'", no policy name list),
+    // so a plain string may not go into script.src
+    var policy = null;
+    try {
+        if (window.trustedTypes && window.trustedTypes.createPolicy) {
+            policy = window.trustedTypes.createPolicy('km3-loader', { createScriptURL: function (url) { return url; } });
+        }
+    } catch (e) { /* no Trusted Types */ }
+
     function load(ref) {
         if (loaded) return;
         loaded = true;
+        var url = base + ref + '/t.js';
         var script = document.createElement('script');
-        script.src = base + ref + '/t.js';
+        script.src = policy ? policy.createScriptURL(url) : url;
         (document.head || document.documentElement).appendChild(script);
     }
 
