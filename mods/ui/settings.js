@@ -3,7 +3,7 @@ import { showModal, buttonItem, overlayPanelItemListRenderer, scrollPaneRenderer
 import qrcode from 'qrcode-npm';
 import { t } from 'i18next';
 import resolveCommand from '../resolveCommand.js';
-import { km3Updater } from '../features/updater.js';
+import { km3Updater, installedSettings } from '../features/updater.js';
 
 const qrcodes = {};
 
@@ -851,7 +851,8 @@ export default function modernUI(update, parameters) {
                                 }
                             }
                         ]
-                    ) : null
+                    ) : null,
+                    ...updaterChoices()
                 ].filter(Boolean)
             } : null
     ];
@@ -921,6 +922,30 @@ export default function modernUI(update, parameters) {
         'tt-settings',
         update
     );
+}
+
+// KM3: name, package and launcher art the updater builds the next version with
+function updaterChoices() {
+    const installed = installedSettings();
+    if (!installed) return [];
+    const choice = (key, id, values, label) => ({
+        name: t(`km3.updater.${id}.title`),
+        icon: 'SETTINGS',
+        value: null,
+        menuId: `tt-updater-${id}`,
+        menuHeader: {
+            title: t(`km3.updater.${id}.title`),
+            subtitle: t(`km3.updater.${id}.subtitle`)
+        },
+        options: values.map(value => ({ name: label(value), key, value }))
+    });
+    return [
+        choice('updaterIconSet', 'icon', [...installed.sets, ''],
+            set => set ? t(`km3.updater.icon.sets.${set}`, { defaultValue: set.replace(/_/g, ' ') }) : t('km3.updater.original')),
+        choice('updaterAppName', 'name', ['YouTube', ''], name => name || t('km3.updater.original')),
+        choice('updaterPackage', 'package', ['com.google.android.youtube.tv', ''],
+            pkg => pkg ? t('km3.updater.package.youtube') : t('km3.updater.original'))
+    ];
 }
 
 export function optionShow(parameters, update) {

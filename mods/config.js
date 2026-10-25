@@ -60,6 +60,10 @@ const defaultConfig = {
   sidebarContentsOrder: [],
   disableChannelsOnSidebar: false,
   enableUpdater: true,
+  // KM3: what the updater builds the next version with (null until read from the installed APK)
+  updaterIconSet: null,
+  updaterAppName: null,
+  updaterPackage: null,
   autoFrameRate: false,
   autoFrameRatePauseVideoFor: 0,
   enableSigninReminder: false,

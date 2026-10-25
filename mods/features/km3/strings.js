@@ -28,23 +28,42 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "Updates are rebuilt into the KM3 version right on this device",
-            "updateNowSubtitle": "Download the release, rebuild it into the KM3 version and install it",
+            "menuSubtitle": "The new version is built right on this device, with the voice-over and your choices below",
+            "updateNowSubtitle": "Download the release, build it with your settings and install it",
             "busy": "An update is already running",
             "reinstall": {
                 "title": "Rebuild this version",
-                "subtitle": "Download this release again and reinstall the KM3 build"
+                "subtitle": "Download this release again and reinstall it, e.g. to apply the choices below"
+            },
+            "original": "TizenTube's own",
+            "icon": {
+                "title": "Icon and banner",
+                "subtitle": "Applied with the next update or rebuild",
+                "sets": {
+                    "YouTube_Red": "YouTube, red",
+                    "YouTube_White": "YouTube, white",
+                    "YouTube_Dark": "YouTube, dark"
+                }
+            },
+            "name": {
+                "title": "App name",
+                "subtitle": "Applied with the next update or rebuild"
+            },
+            "package": {
+                "title": "Package",
+                "subtitle": "Like the YouTube TV app, the remote's YouTube button and casting open it. Another package installs as a separate app: sign in again, then remove the old one",
+                "youtube": "As the YouTube TV app"
             },
             "stage": {
                 "download": "Downloading the update… {{percent}}%",
-                "patch": "Building the KM3 version…",
+                "patch": "Building the new version…",
                 "sign": "Signing…",
                 "install": "Confirm the installation on screen",
                 "error": "Update failed: {{error}}"
             },
             "ok": {
                 "title": "Got it",
-                "subtitle": "This build cannot update itself yet: install a KM3 build with the built-in updater"
+                "subtitle": "This version cannot update itself yet: install one with the built-in updater"
             }
         }
     },
@@ -72,23 +91,42 @@ const strings = {
             }
         },
         "updater": {
-            "menuSubtitle": "Обновление собирается в KM3-версию прямо на приставке",
-            "updateNowSubtitle": "Скачать релиз, собрать из него KM3-версию и установить",
+            "menuSubtitle": "Новая версия собирается прямо на приставке, с переводом и вашими настройками ниже",
+            "updateNowSubtitle": "Скачать релиз, собрать его с вашими настройками и установить",
             "busy": "Обновление уже идёт",
             "reinstall": {
                 "title": "Пересобрать текущую версию",
-                "subtitle": "Скачать этот релиз заново и переустановить KM3-сборку"
+                "subtitle": "Скачать этот релиз заново и переустановить, например чтобы применить настройки ниже"
+            },
+            "original": "Как у TizenTube",
+            "icon": {
+                "title": "Иконка и баннер",
+                "subtitle": "Применится при следующем обновлении или пересборке",
+                "sets": {
+                    "YouTube_Red": "YouTube, красная",
+                    "YouTube_White": "YouTube, белая",
+                    "YouTube_Dark": "YouTube, тёмная"
+                }
+            },
+            "name": {
+                "title": "Название приложения",
+                "subtitle": "Применится при следующем обновлении или пересборке"
+            },
+            "package": {
+                "title": "Пакет",
+                "subtitle": "Как у YouTube для ТВ — тогда его открывают кнопка YouTube на пульте и трансляция с телефона. Другой пакет ставится отдельным приложением: войдите в аккаунт заново и удалите старое",
+                "youtube": "Как у YouTube для ТВ"
             },
             "stage": {
                 "download": "Скачиваю обновление… {{percent}}%",
-                "patch": "Собираю KM3-версию…",
+                "patch": "Собираю новую версию…",
                 "sign": "Подписываю…",
                 "install": "Подтвердите установку на экране",
                 "error": "Не удалось обновить: {{error}}"
             },
             "ok": {
                 "title": "Понятно",
-                "subtitle": "Эта сборка пока не умеет обновляться сама: поставьте KM3-сборку со встроенным обновлением"
+                "subtitle": "Эта версия пока не умеет обновляться сама: поставьте версию со встроенным обновлением"
             }
         }
     },

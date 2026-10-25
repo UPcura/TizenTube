@@ -1,13 +1,13 @@
 // TizenTube Cobalt Update Checker
 //
-// KM3: the app rebuilds a TizenTube Cobalt release into the KM3 build itself (window.KM3Updater,
-// Java in the KM3 APK): it downloads the release, applies the KM3 changes, signs the result with
-// the KM3 key and hands it to the system installer. An APK fetched by InstallAppFromURL would carry
-// the upstream signature and could not install over the KM3 one. KM3 APKs from before KM3Updater
-// can only be told that a release is out.
+// KM3: the app rebuilds a TizenTube Cobalt release into this build itself (window.KM3Updater, Java
+// in the APK): it downloads the release, applies the changes and the user's choice of name, package
+// and launcher art, signs the result with the key the APK carries and hands it to the system
+// installer. An APK fetched by InstallAppFromURL would carry the upstream signature and could not
+// install over this one. APKs from before KM3Updater can only be told that a release is out.
 
 import { buttonItem, showModal, showToast, overlayPanelItemListRenderer, overlayMessageRenderer } from '../ui/ytUI.js';
-import { configRead } from '../config.js';
+import { configRead, configWrite } from '../config.js';
 import { t } from 'i18next';
 
 const RELEASES = 'https://api.github.com/repos/reisxd/TizenTubeCobalt/releases';
@@ -28,6 +28,27 @@ export function km3Updater() {
         return window.KM3Updater && window.KM3Updater.version() >= 1 ? window.KM3Updater : null;
     } catch (_) {
         return null;
+    }
+}
+
+const CHOICES = { updaterIconSet: 'set', updaterAppName: 'label', updaterPackage: 'package' };
+
+/** What the installed APK was built with, and the art sets it carries; null on APKs without the choices. */
+export function installedSettings() {
+    const updater = km3Updater();
+    if (!updater || updater.version() < 2) return null;
+    try {
+        return JSON.parse(updater.settings());
+    } catch (_) {
+        return null;
+    }
+}
+
+// The choices start out as what this APK was built with (a new package starts with empty storage).
+const installed = installedSettings();
+if (installed) {
+    for (const key of Object.keys(CHOICES)) {
+        if (configRead(key) === null && installed[CHOICES[key]] !== undefined) configWrite(key, installed[CHOICES[key]]);
     }
 }
 
@@ -54,7 +75,10 @@ const toast = text => showToast(t('settings.options.updater.title'), text);
 /** Rebuilds and installs the release APK at url, reporting progress in toasts. */
 export function startUpdate(url) {
     const updater = km3Updater();
-    if (!updater.start(url)) return toast(t('km3.updater.busy'));
+    const choices = {};
+    for (const key of Object.keys(CHOICES)) if (configRead(key) !== null) choices[CHOICES[key]] = configRead(key);
+    const started = updater.version() >= 2 ? updater.start(url, JSON.stringify(choices)) : updater.start(url);
+    if (!started) return toast(t('km3.updater.busy'));
     let lastStage = null;
     let lastPercent = -1;
     const timer = setInterval(() => {
